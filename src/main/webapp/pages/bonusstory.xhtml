@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<!-- 	<ui:composition template="/pages/templates/BaseTemplate.xhtml">
+	<ui:define name="content"> -->	
+	<h:head>
+	<title><ui:insert name="title">Система мониторинга автоматов</ui:insert></title>	
+	</h:head>
+<h:form id="form1">
+	<table width="100%" bordercolor="0093DD" border = "0" cellpadding="0" cellspacing="0" bgcolor="0093DD">
+		<tr  bgcolor="0093DD"  bordercolor="0093DD" border = "0">
+			<td align="center" width="20%"  bordercolor="0093DD" border = "0" rowspan="2"><p:graphicImage style="width:100%;" value="/images/logo.png"/> </td>			
+			<td align="center" width="40%" ><h:outputText value="Здравствуйте #{login.uname}" style="color:white;font: bold 16px tahoma;" /></td>
+			<td align="center" width="40%" ><h:outputText value="Права: #{login.role}" style="color:white;font: bold 16px tahoma;"  /></td>		
+		</tr>
+		<tr bgcolor="0093DD"  bordercolor="0093DD" border = "0" align="right">		
+			<td />	
+			<td align="right" bordercolor="0093DD" width="10%"><h:commandButton rendered="#{login.loggedIn}" value="Logout" action="#{login.logOut()}"></h:commandButton></td>
+		</tr>
+		<tr height="30px" >
+			<td colspan="4" align="center">
+				<p:tabMenu activeIndex="5" style="font: normal 16px serif;">
+					<p:menuitem value="Автоматы" url="/pages/avtomats.jsf"/>
+					<p:menuitem value="Ключи" url="/pages/keys.jsf"/>
+					<p:menuitem value="Инкассаторы" url="/pages/inkasatori.jsf"/>
+					<p:menuitem value="История ключей" url="/pages/keyhistory.jsf"/>
+					<p:menuitem value="История инкассаций" url="/pages/inkashistory.jsf"/>	
+					<p:menuitem value="История бонусов" url="/pages/bonusstory.jsf"/>
+					<p:menuitem value="Отчеты" url="/pages/report.jsf"/>					
+					<p:menuitem value="Пользователи" url="/pages/users.jsf" />	
+					<p:menuitem value="Панель провайдера" url="/pages/provider.jsf" />
+				</p:tabMenu>
+			</td>
+		</tr>		
+		</table>
+		</h:form>
+		<h:form id="form2">
+		<p:panelGrid id="dateselect" cellpadding="4" style="margin:0 auto; width:50%;text-align:center;" styleClass=" ui-widget-content grid" rendered="#{login.fullVersion}">
+			<p:row>
+				<p:column>
+					<h:outputText value="Период выборки:  С " /> 
+						<p:calendar value="#{bonusstory.fromDate}" style="width:10px;"/> 
+					 <h:outputText value="    По:  " /> 
+					 	<p:calendar value="#{bonusstory.toDate}" style="width:10px;"/>
+				</p:column>
+			</p:row>
+			<p:row rendered="#{login.provider}">
+				<p:column>
+					<h:outputText value="История бонусов пользователя: " />
+					<p:selectOneMenu align="center"   id="olistsel" converter="strconverter" value="#{bonusstory.operatorName}" >
+    					<f:selectItems value="#{login.operList}" var="olistsel" itemLabel="#{olistsel}" itemValue="#{olistsel}"></f:selectItems>
+    				</p:selectOneMenu>	
+				</p:column>				
+			</p:row>
+			<p:row>
+				<p:column>
+					<p:commandButton id="avtosearch" actionListener="#{bonusstory.getByDate}" update=":accordpan:form3:bonhisttable :accordpan:bonapp:avtonumselect" value="Показать" style="height:25px;text-align:center;font: normal 12px tahoma;"></p:commandButton> 
+				</p:column>
+			</p:row>
+	 </p:panelGrid> 
+	  <p:spacer height="20px"/>	
+</h:form>
+
+	<p:ajaxStatus  id="ajaxStatusPanel"  >  
+    <f:facet name="start">  
+        <p:graphicImage style="width:64px;height:64px;margin:0 auto;" value="/images/ajax-loader.gif"/> 
+    </f:facet>  
+  
+    <f:facet name="complete">  
+        <h:outputText value="" />  
+    </f:facet>  
+</p:ajaxStatus> 
+		<p:accordionPanel id="accordpan" style="font:bold 16px sans-serif;">  
+    <p:tab id="avtoaddtab" title="История бонусов" >
+<h:form id="form3">
+<p:dataTable id="bonhisttable" var="keyrec" sortMode="single" value="#{bonusstory.lazyBonusStory}" emptyMessage="Записей не найдено.." widgetVar="incHistTable" paginator="true" rows="20"  
+                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                 rowsPerPageTemplate="20,50,100" style="font:bold 12px serif;width:50%; margin:0 auto;text-align:center;" lazy="true" >
+		<f:facet name="header" >
+		<h:outputText value=" История бонусов оператора " style="font:bold 16px sans-serif;"/>		 
+</f:facet>
+		<p:column sortBy="#{keyrec.id.dat}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Дата" align="center"  />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.id.dat}" align="center">
+		 	<f:convertDateTime pattern="dd.MM.YYYY HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}"/> 
+		 </h:outputText>
+			</p:column>
+			<p:column sortBy="#{keyrec.id.numkey}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Акаунт" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.id.numkey}" align="center" />
+			</p:column>	
+			<p:column >
+		 		<f:facet name="header">
+			 		<h:outputText value="Ф.И.О" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.fio}" align="center" />
+			</p:column>
+			<p:column >
+		 		<f:facet name="header">
+			 		<h:outputText value="Группа" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.ugroup}" align="center" />
+			</p:column>		
+			<p:column sortBy="#{keyrec.bonadd}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Добавлено" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.bonadd}" align="center" />
+			</p:column>
+			<p:column sortBy="#{keyrec.userid}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Добавил" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.userid}" align="center" />
+			</p:column>
+		</p:dataTable>
+		</h:form>
+	<!--  </ui:define>
+</ui:composition> -->
+</p:tab>
+<p:tab id="avtobonus" title="Бонусирование аппаратов" rendered="#{login.expandShow}">
+    <h:form id="bonapp">
+    <p:panelGrid>
+    	<f:facet name="header">
+			<p:row>
+				<p:column>
+					<h:outputText value="Автомат" />
+				</p:column>
+				<p:column>
+					<h:outputText value="Бонус" />
+				</p:column>
+				<p:column>
+					<h:outputText value="Начислить" />
+				</p:column>
+			</p:row>    	
+    	</f:facet>
+    	<p:row>
+    		<p:column headerText="Автомат">
+    			<p:selectOneMenu id="avtonumselect" value="#{bonusstory.anum}" converter="intconvert" style="width:100px;" >
+						<f:selectItems value="#{bonusstory.avtomatList}" var="avtonumselect" itemLabel="#{avtonumselect}" itemValue="#{avtonumselect}" > </f:selectItems>
+				</p:selectOneMenu>        			    			
+    		</p:column>
+    		<p:column headerText="Бонус">
+    			<h:inputText value="#{bonusstory.bonadd}" />    		
+    		</p:column>
+    		<p:column headerText="Начислить">
+    			<p:commandButton id="appbonadd" actionListener="#{bonusstory.appbonadd()}" update=":accordpan:form3:bonhisttable" icon="ui-icon-check">
+    			</p:commandButton>    		
+    		</p:column>
+    	</p:row>
+    </p:panelGrid>
+    </h:form>    
+    </p:tab>
+    <p:tab id="groupbonus" title="Бонусирование групп пользователей" rendered="#{login.expandShow}">
+    <h:form id="gbonapp">
+    <p:panelGrid>
+    	<f:facet name="header">
+			<p:row>
+				<p:column>
+					<h:outputText value="Группа" />
+				</p:column>
+				<p:column>
+					<h:outputText value="Бонус" />
+				</p:column>
+				<p:column>
+					<h:outputText value="Начислить" />
+				</p:column>
+			</p:row>    	
+    	</f:facet>
+    	<p:row>
+    		<p:column headerText="Группа">
+    			<p:selectOneMenu id="groupselect" value="#{bonusstory.group}" converter="strconverter" style="width:100px;" >
+					<f:selectItem itemLabel="1" itemValue="1" />  
+            		<f:selectItem itemLabel="2" itemValue="2" />  
+            		<f:selectItem itemLabel="3" itemValue="3" /> 
+            		<f:selectItem itemLabel="4" itemValue="4" />
+            		<f:selectItem itemLabel="5" itemValue="5" /> 
+				</p:selectOneMenu>        			    			
+    		</p:column>
+    		<p:column headerText="Бонус">
+    			<h:inputText value="#{bonusstory.bonadd}" />    		
+    		</p:column>
+    		<p:column headerText="Начислить">
+    			<p:commandButton id="appbonadd" actionListener="#{bonusstory.groupbonadd()}" update=":accordpan:form3:bonhisttable" icon="ui-icon-check">
+    			</p:commandButton>    		
+    		</p:column>
+    	</p:row>
+    </p:panelGrid>
+    </h:form>    
+    </p:tab>
+</p:accordionPanel>
+
+	
+</html>

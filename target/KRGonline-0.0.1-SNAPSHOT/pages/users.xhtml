@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title><ui:insert name="title">Система мониторинга автоматов</ui:insert></title>
+</h:head>
+<h:form id="form">
+<table width="100%" bordercolor="0093DD" border = "0" cellpadding="0" cellspacing="0" bgcolor="0093DD">
+		<tr  bgcolor="0093DD"  bordercolor="0093DD" border = "0">
+			<td align="center" width="20%"  bordercolor="0093DD" border = "0" rowspan="2"><p:graphicImage style="width:100%;" value="/images/logo.png"/> </td>			
+			<td align="center" width="40%" ><h:outputText value="Здравствуйте #{login.uname}" style="color:white;font: bold 16px tahoma;" /></td>
+			<td align="center" width="40%" ><h:outputText value="Права: #{login.role}" style="color:white;font: bold 16px tahoma;"  /></td>		
+		</tr>
+		<tr bgcolor="0093DD"  bordercolor="0093DD" border = "0" align="right">		
+			<td />	
+			<td align="right" bordercolor="0093DD" width="10%"><h:commandButton rendered="#{login.loggedIn}" value="Logout" action="#{login.logOut()}"></h:commandButton></td>
+		</tr>
+		<tr height="30px" >
+			<td colspan="4" align="center">
+				<p:tabMenu activeIndex="7" style="font: normal 16px serif;">
+					<p:menuitem value="Автоматы" url="/pages/avtomats.jsf"/>
+					<p:menuitem value="Ключи" url="/pages/keys.jsf"/>
+					<p:menuitem value="Инкассаторы" url="/pages/inkasatori.jsf"/>
+					<p:menuitem value="История ключей" url="/pages/keyhistory.jsf"/>
+					<p:menuitem value="История инкассаций" url="/pages/inkashistory.jsf"/>	
+					<p:menuitem value="История бонусов" url="/pages/bonusstory.jsf"/>
+					<p:menuitem value="Отчеты" url="/pages/report.jsf"/>
+					<p:menuitem value="Пользователи" url="/pages/users.jsf" />
+					<p:menuitem value="Панель провайдера" url="/pages/provider.jsf"/>	
+				</p:tabMenu>
+			</td>
+		</tr>		
+		</table>
+</h:form>
+<p:spacer height="20px"/>	
+		
+		
+	<h:form id="form1">
+		<p:dataTable id="usertable" var="user" value="#{users.userList}" widgetVar="usersTable" style="font:bold 12px serif;width:50%; margin:0 auto;" >    
+                
+		<f:facet name="header"> 
+		<h:outputText value=" Пользователи" style="font:bold 16px sans-serif;" />
+		
+		</f:facet>
+			<p:column style="width:10%;text-align:center;">
+		 		<f:facet name="header">
+			 		<h:outputText value="Логин" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{user.userid}" align="center" />
+			</p:column>			
+			<p:column style="width:5%;text-align:center;">
+		 		<f:facet name="header">
+			 		<h:outputText value="Пользователь" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{user.username}" align="center" />
+			</p:column>
+			<p:column style="width:5%;text-align:center;">
+		 		<f:facet name="header">
+			 		<h:outputText value="Права" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{user.arm}" align="center" />
+			</p:column>	
+			
+			<p:column style="width:5%;text-align:center;" >
+		 		<f:facet name="header">
+			 		<h:outputText value="Редактировать" align="center" />
+		 		</f:facet>
+		 		<p:commandButton id="editButton" oncomplete="dlg3.show()" update=":confirmFrom:display" icon="ui-icon-pencil"> 
+                  <f:setPropertyActionListener value="#{user}" target="#{users.selectedUser}" for="editButton" /> 
+            </p:commandButton>  
+			</p:column>	
+			<p:column style="width:5%;text-align:center;">
+		 		<f:facet name="header">
+			 		<h:outputText value="Удалить" align="center" />
+		 		</f:facet>
+				<p:commandButton id="remButton" oncomplete="confirmation.show()" icon="ui-icon-trash" title="Удалить пользователя #{users.selectedUser.username}" update=":delconfirm:confirmDialog" >
+                  <f:setPropertyActionListener value="#{user}" target="#{users.selectedUser}" for="remButton" />
+                </p:commandButton> 
+			</p:column>	
+			<f:facet name="footer">
+     			<p:column colspan="2" rendered="#{login.expandShow}">
+    				<p:commandButton title="Добавить" value="Добавить пользователя" update=":useraddfrom:udisplay" actionListener="#{users.setNewUser()}"  style="height:30px" oncomplete="adddlg.show()"></p:commandButton>
+     			</p:column>
+     		</f:facet>	
+		</p:dataTable>
+		</h:form>
+		
+		<h:form id="confirmFrom">		
+		<p:dialog id="modalDialog" header="Редактирование пользователя" widgetVar="dlg3" resizable="false" modal="false">  
+     		<p:panelGrid id="display" cellpadding="4" style="margin:0 auto; width:100%" styleClass=" ui-widget-content grid">
+     				<p:row>
+     						<p:column>
+     							<h:outputText value="Логин" />
+     						</p:column>
+     						<p:column>
+     							<h:outputText id="logininput" value="#{users.selectedUser.userid}" style="width:200px;">
+     							</h:outputText>
+     						</p:column>
+     				</p:row>
+     				<p:row>
+     						<p:column>
+     							<h:outputText value="Пароль" />
+     						</p:column>
+     						<p:column>
+     							<p:inputText id="passedit" value="#{users.selectedUser.userpass}" style="width:200px;">
+     								<f:validator for="passedit" validatorId="userpassvalidator"/> 
+     							</p:inputText>
+     							<p:message for="passedit"/>
+     						</p:column>
+     				</p:row>
+     				<p:row>
+     						<p:column>
+     							<h:outputText value="Пользователь" />
+     						</p:column>
+     						<p:column>
+     							<h:inputText value="#{users.selectedUser.username}" style="width:200px;"/>
+     						</p:column>
+     				</p:row>
+     				
+     				<p:row>
+     						<p:column>
+     							<h:outputText value="Права" />
+     						</p:column>
+     						<p:column>
+     							<p:selectOneMenu value="#{users.selectedUser.arm}" style="width:200px;">
+     								<f:selectItem itemLabel="Администратор" itemValue="Администратор"/>
+     								<f:selectItem itemLabel="Диспетчер" itemValue="Диспетчер"/>
+     							</p:selectOneMenu> 
+     						</p:column>
+     				</p:row>     				
+     					<f:facet name="footer">
+     					<p:row >
+     						<p:column colspan="2">
+    							<p:commandButton title="Сохранить" value="OK" actionListener="#{users.editUser()}" update=":form1:usertable display" style="height:30px" oncomplete="if (!args.validationFailed) dlg3.hide()"></p:commandButton>
+     						</p:column>
+     						</p:row>     					
+     				</f:facet>
+     			</p:panelGrid>
+</p:dialog >     
+	</h:form>
+	
+	<h:form id="delconfirm">
+		<p:confirmDialog id="confirmDialog" message="Удалить пользователя #{users.selectedUser.username} ?" header="Удаление пользователя" severity="alert" widgetVar="confirmation" >  
+                  
+        <p:commandButton id="confirm" value="Да" update=":form1:usertable" oncomplete="confirmation.hide()"  
+                    actionListener="#{users.remUser()}" />  
+        <p:commandButton id="decline" value="Нет" onclick="confirmation.hide()" type="button" />   
+                  
+    </p:confirmDialog>  
+	</h:form>
+	
+		<h:form id="useraddfrom">
+		<p:dialog id="umodalDialog" header="Добавление пользователя " widgetVar="adddlg" resizable="false" modal="false">  
+     		<p:panelGrid id="udisplay" cellpadding="4" style="margin:0 auto; width:100%" styleClass=" ui-widget-content grid">
+     				<p:row>
+     						<p:column>
+     							<h:outputText value="Логин" />
+     						</p:column>
+     						<p:column>
+     							<p:inputText id="logininput" value="#{users.newPolz.userid}" style="width:200px;">
+     								<f:validator for="logininput" validatorId="uservalidator"/>
+     							</p:inputText>
+     							<p:message for="logininput"/>
+     						</p:column>
+     				</p:row>
+     				<p:row>
+     						<p:column>
+     							<h:outputText value="Пароль" />
+     						</p:column>
+     						<p:column>
+     							<p:inputText id="passinput" value="#{users.newPolz.userpass}" style="width:200px;">
+     								<f:validator for="passinput" validatorId="userpassvalidator"/>     							
+     							</p:inputText>
+     							<p:message for="passinput"/>
+     						</p:column>
+     				</p:row>
+     				<p:row>
+     						<p:column>
+     							<h:outputText value="Пользователь" />
+     						</p:column>
+     						<p:column>
+     							<p:inputText value="#{users.newPolz.username}" style="width:200px;"/>
+     						</p:column>
+     				</p:row>
+     				
+     				<p:row>
+     						<p:column>
+     							<h:outputText value="Права" />
+     						</p:column>
+     						<p:column>
+     							<p:selectOneMenu value="#{users.newPolz.arm}" style="width:200px;">
+     								<f:selectItem itemLabel="Администратор" itemValue="Администратор"/>
+     								<f:selectItem itemLabel="Диспетчер" itemValue="Диспетчер"/>
+     							</p:selectOneMenu> 
+     						</p:column>
+     				</p:row>     				
+     					<f:facet name="footer">
+     					<p:row >
+     						<p:column colspan="2">
+    							<p:commandButton title="Сохранить" value="OK" actionListener="#{users.addUser()}" update=":form1:usertable udisplay" style="height:30px" oncomplete="if (!args.validationFailed) adddlg.hide()"></p:commandButton>
+     						</p:column>
+     						</p:row>     					
+     				</f:facet>
+     			</p:panelGrid>
+			</p:dialog >     
+	</h:form>
+			
+</html>

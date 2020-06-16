@@ -1,0 +1,118 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.hk.deader</groupId>
+  <artifactId>KRGonline</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  
+  <repositories>
+   
+    <repository>
+	 <id>prime-repo</id>
+	 <name>Prime Repo</name>
+	 <url>http://repository.primefaces.org</url>
+	</repository>
+  </repositories> 
+  
+   
+   <dependencies>
+       
+  <!-- PrimeFaces -->
+  <dependency>
+	 <groupId>org.primefaces</groupId>
+	 <artifactId>primefaces</artifactId>
+	 <version>3.4</version>
+</dependency>
+<dependency>
+	 <groupId>org.primefaces.themes</groupId>
+	 <artifactId>cupertino</artifactId>
+	 <version>1.0.8</version>
+</dependency>
+	
+	
+<!-- FireBird driver -->
+    <dependency>
+  <groupId>org.firebirdsql.jdbc</groupId> 
+ <artifactId>jaybird-jdk17</artifactId> 
+ <version>2.2.0</version>
+   </dependency>
+   <!-- JSF -->
+   <dependency>
+	<groupId>com.sun.faces</groupId>
+	<artifactId>jsf-api</artifactId>
+	<version>2.1.13</version>
+</dependency>
+<dependency>
+	<groupId>com.sun.faces</groupId>
+	<artifactId>jsf-impl</artifactId>
+	<version>2.1.13</version>
+</dependency>
+<!-- Jasper Reports -->
+
+  
+   <!-- Hibernate -->
+      <dependency>  
+      <groupId>org.hibernate</groupId>  
+      <artifactId>hibernate-core</artifactId>  
+      <version>4.0.0.Final</version>  
+    </dependency>  
+    <dependency>  
+      <groupId>org.hibernate</groupId>  
+      <artifactId>hibernate-entitymanager</artifactId>  
+      <version>4.0.0.Final</version>  
+    </dependency>  
+    <dependency>  
+      <groupId>org.hibernate.javax.persistence</groupId>  
+      <artifactId>hibernate-jpa-2.0-api</artifactId>  
+      <version>1.0.1.Final</version>  
+      <scope>provided</scope>  
+    </dependency>  
+    <dependency>  
+        <groupId>org.hibernate.java-persistence</groupId>  
+        <artifactId>jpa-api</artifactId>  
+        <version>2.0-cr-1</version>  
+    </dependency>  
+    
+    <!-- C3P0 -->
+  <dependency>
+	<groupId>c3p0</groupId>
+	<artifactId>c3p0</artifactId>
+	<version>0.9.1.2</version>
+</dependency>
+
+<dependency>
+	<groupId>javax.servlet</groupId>
+	<artifactId>jstl</artifactId>
+	<version>1.2</version>
+  </dependency>
+   
+  </dependencies>
+  
+  <build>
+     <plugins>
+	<plugin>
+    	<groupId>org.apache.maven.plugins</groupId>
+    	<artifactId>maven-compiler-plugin</artifactId>
+    	<configuration>
+    		<release>8</release>
+    		<verbose>true</verbose>
+			<fork>true</fork>						
+			<compilerVersion>8</compilerVersion>
+			<source>8</source>
+			<target>8</target>
+    	</configuration>
+    	<dependencies>
+        	<dependency>
+            	<groupId>org.ow2.asm</groupId>
+            	<artifactId>asm</artifactId>
+            	<version>6.2</version> <!-- Use newer version of ASM -->
+        	</dependency>
+    	</dependencies>
+	</plugin>
+	</plugins>
+  </build>
+  
+  
+</project>

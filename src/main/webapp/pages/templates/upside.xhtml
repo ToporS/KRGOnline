@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<h:head></h:head>
+<h:form>
+	<table width="100%">
+		<tr height="100px" >
+			<td colspan="4" align="center">
+			<p:panel>
+				<p:dock position="top" itemWidth="70" proximity="150">
+					<p:menuitem value="Ключи" icon="/images/keys.png" url="/pages/keys.jsf"/>
+					<p:menuitem value="История ключей" icon="/images/keystory.png" url="/pages/keyhistory.jsf"/>
+					<p:menuitem value="Инкассаторы" icon="/images/inkasatori.jpg" url="/pages/inkasatori.jsf"/>
+					<p:menuitem value="История инкассаций" icon="/images/transportation.png" url="/pages/inkashistory.jsf"/>		
+				</p:dock>
+			</p:panel>	
+			</td>
+		</tr>
+		<tr >
+			<td width="30%" align="center"><h:outputText value="Здравствуйте #{login.uname}" /></td>
+			<td width="30%" align="center"><h:outputText value="Оператор: #{login.opername}" /></td>
+			<td width="30%" align="center"><h:outputText value="Права: #{login.role}" /></td>
+			<td width="10%" align="right"><h:commandButton rendered="#{login.loggedIn}" value="Logout" action="#{login.logOut()}"></h:commandButton></td>
+		</tr>
+		</table>
+		</h:form>
+</html>

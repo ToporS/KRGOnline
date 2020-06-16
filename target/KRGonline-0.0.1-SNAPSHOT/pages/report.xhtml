@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<link rel="stylesheet" type="text/css" href="#{request.contextPath}/css/print.css"/>
+	<title><ui:insert name="title">Система мониторинга автоматов</ui:insert></title>
+</h:head>
+<h:form id="form">
+<div id="tohide">
+<table id="headtable" width="100%" bordercolor="0093DD" border = "0" cellpadding="0" cellspacing="0" bgcolor="0093DD">
+		<tr  bgcolor="0093DD"  bordercolor="0093DD" border = "0">
+			<td align="center" width="20%"  bordercolor="0093DD" border = "0" rowspan="2"><p:graphicImage style="width:100%;" value="/images/logo.png"/> </td>			
+			<td align="center" width="40%" ><h:outputText value="Здравствуйте #{login.uname}" style="color:white;font: bold 16px tahoma;" /></td>
+			<td align="center" width="40%" ><h:outputText value="Права: #{login.role}" style="color:white;font: bold 16px tahoma;"  /></td>		
+		</tr>
+		<tr bgcolor="0093DD"  bordercolor="0093DD" border = "0" align="right">		
+			<td />	
+			<td align="right" bordercolor="0093DD" width="10%"><h:commandButton rendered="#{login.loggedIn}" value="Logout" action="#{login.logOut()}"></h:commandButton></td>
+		</tr>
+		<tr height="30px" >
+			<td colspan="4" align="center">
+				<p:tabMenu activeIndex="6" style="font: normal 16px serif;">
+					<p:menuitem value="Автоматы" url="/pages/avtomats.jsf"/>
+					<p:menuitem value="Ключи" url="/pages/keys.jsf"/>
+					<p:menuitem value="Инкассаторы" url="/pages/inkasatori.jsf"/>
+					<p:menuitem value="История ключей" url="/pages/keyhistory.jsf"/>
+					<p:menuitem value="История инкассаций" url="/pages/inkashistory.jsf"/>	
+					<p:menuitem value="История бонусов" url="/pages/bonusstory.jsf"/>
+					<p:menuitem value="Отчеты" url="/pages/report.jsf"/>
+					<p:menuitem value="Пользователи" url="/pages/users.jsf" />
+					<p:menuitem value="Панель провайдера" url="/pages/provider.jsf" />	
+				</p:tabMenu>
+			</td>
+		</tr>		
+		</table>
+		</div>
+		</h:form>
+		<h:form id="form1" >
+		
+		<p:panelGrid id="dateselect" cellpadding="4" style="margin:0 auto; width:50%;text-align:center;" styleClass=" ui-widget-content grid" >
+			<p:row>
+				<p:column style="font:bold 16px sans-serif;">
+					<h:outputText value="Период выборки:  С " /> 
+						<p:calendar value="#{salesreport.fromDate}" style="width:10px;"/> 
+	 				<h:outputText value="    По:  " /> 
+	 					<p:calendar value="#{salesreport.toDate}" style="width:10px;"/>
+				</p:column>
+				</p:row>
+			<p:row>
+			<p:column style="font:bold 16px sans-serif;">
+				<p:commandButton id="pbut" value="Показать" process="@all" actionListener="#{salesreport.byDate()}" update=":form2:reporttable :f1:panid :outoper :fromdata :todata" style="height:25px;text-align:center;font: normal 12px tahoma;"></p:commandButton>
+			</p:column>
+			</p:row>
+	 </p:panelGrid > 
+	  <p:spacer height="20px"/>
+	 </h:form >
+	
+	<h:form id="f1">  
+	
+	<p:panelGrid id="panid" style="font:bold 16px sans-serif;margin:0 auto;">
+	  
+	  <f:facet name="header"> 
+     	<p:row>
+     		<p:column colspan="5">
+     			<h:outputText value="Краткий итог" />
+     		</p:column>
+     	</p:row>
+     	<p:row>
+     		<p:column>
+     			<h:outputText value="Итого, руб" />
+     		</p:column>
+     		<p:column>
+     			<h:outputText value="Итого, литр" />
+     		</p:column>
+     		<p:column>
+     			<h:outputText value="Итого, бут" />
+     		</p:column>
+     		<p:column>
+     			<h:outputText value="Инкассировано, руб" />
+     		</p:column>
+     		<p:column>
+     			<h:outputText value="Копилка, руб" />
+     		</p:column>
+     	</p:row>
+      </f:facet> 
+     <p:row>
+     	<p:column>
+     		<h:outputText value="#{salesreport.total.totaltotalmoney}" />
+     	</p:column>
+     	<p:column>
+     		<h:outputText value="#{salesreport.total.totaltotallitr}" />
+     	</p:column>
+     	<p:column>
+     		<h:outputText value="#{salesreport.total.totaltotalbut}" />
+     	</p:column>
+     	<p:column>
+     		<h:outputText value="#{salesreport.total.totalinkass}" />
+     	</p:column>
+     	<p:column>
+     		<h:outputText value="#{salesreport.total.totalKopilka}" />
+     	</p:column>
+     </p:row>	  	
+	  </p:panelGrid>
+	  </h:form>
+	  
+	  <p:ajaxStatus  id="ajaxStatusPanel"  >  
+    <f:facet name="start">  
+        <p:graphicImage style="width:64px;height:64px;margin:0 auto;" value="/images/ajax-loader.gif"/> 
+    </f:facet>  
+  
+    <f:facet name="complete">  
+        <h:outputText value="" />  
+    </f:facet>  
+</p:ajaxStatus> 
+	  <p:spacer height="30px"/>
+	  <h:outputText id="outoper" value="Отчет по продажам за период " style="font:bold 16px sans-serif;margin:0 auto;"/>
+	  	<h:outputText id="fromdata" value="#{salesreport.fromDate}"  style="font:bold 16px sans-serif;margin:0 auto;"  >
+	  		<f:convertDateTime pattern="dd.MM.yyyy" locale="#{login.locale}" timeZone="#{login.timeZone}"/>  	 
+	  	</h:outputText>	  
+	  	<h:outputText value="---" />
+	  	<h:outputText id="todata" value="#{salesreport.toDate}"  style="font:bold 16px sans-serif;margin:0 auto;" >
+	  		<f:convertDateTime pattern="dd.MM.yyyy" locale="#{login.locale}" timeZone="#{login.timeZone}"/>  	 
+	  	</h:outputText>
+	  <h:form id="form2">
+<p:dataTable id="reporttable" var="rep" sortMode="multiple" value="#{salesreport.reportList}" emptyMessage="Задайте период для отчета..."
+				rowKey="#{rep.avtid}" selection="#{salesreport.selectedReport}" selectionMode="single" style="font:bold 12px serif;width:100%;">
+		
+		    <p:column sortBy="#{rep.avtid}">
+		    	<f:facet name="header"><h:outputText value="Автомат"/></f:facet>
+		    	<h:outputText value="#{rep.avtid}" align="center" /> 
+		    	<f:facet name="footer"><h:outputText value="Итог"/></f:facet>
+			</p:column>
+
+			<p:column >
+		    	<f:facet name="header"><h:outputText value="Адрес"/></f:facet>
+		    	<h:outputText value="#{rep.adres}" align="center" />
+			</p:column>
+			<p:column sortBy="#{rep.salesBeznal}" rendered = "true">
+				<f:facet name="header"><h:outputText value="Безнал,руб "/></f:facet>
+				<h:outputText value="#{rep.salesBeznal}" align="center"  />
+				<f:facet name="footer">
+					<h:outputText id="tsbm" value="#{salesreport.total.totalsalesBeznal}"/>
+				</f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.litrBeznal}">
+				<f:facet name="header"><h:outputText value="Безнал,литр"/></f:facet>
+				<h:outputText value="#{rep.litrBeznal}" align="center"  />
+				<f:facet name="footer"><h:outputText value="#{salesreport.total.totallitrBeznal}"/></f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.butBezNal}">
+				<f:facet name="header"><h:outputText value="Безнал,бут"/></f:facet>
+				<h:outputText value="#{rep.butBezNal}" align="center"  />
+				<f:facet name="footer"><h:outputText value="#{salesreport.total.totalButBezNal}"/></f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.popolneno}">
+				<f:facet name="header"><h:outputText value="Пополнено"/></f:facet>
+				<h:outputText value="#{rep.popolneno}" align="center" />
+				<f:facet name="footer">
+					<h:outputText id="tpm" value="#{salesreport.total.totalpopolneno}"/>
+				</f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.salesNal}">
+				<f:facet name="header"><h:outputText value="Нал,руб"/></f:facet>
+				<h:outputText value="#{rep.salesNal}" align="center" />
+				<f:facet name="footer">
+					<h:outputText id="tsnm" value="#{salesreport.total.totalsalesNal}"/>
+				</f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.litrNal}">
+				<f:facet name="header"><h:outputText value="Нал,литр"/></f:facet>
+				<h:outputText value="#{rep.litrNal}" align="center" />
+				<f:facet name="footer"><h:outputText value="#{salesreport.total.totallitrNal}"/> </f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.butNal}">
+				<f:facet name="header"><h:outputText value="Нал,бут"/></f:facet>
+				<h:outputText value="#{rep.butNal}" align="center"  />
+				<f:facet name="footer"><h:outputText value="#{salesreport.total.totalButNal}"/></f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.inkass}">
+				<f:facet name="header"><h:outputText value="Инкассировано"/></f:facet>
+				<h:outputText value="#{rep.inkass}" align="center" />
+				<f:facet name="footer">
+					<h:outputText id="tim" value="#{salesreport.total.totalinkass}"/>
+				</f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.spisano}">
+				<f:facet name="header"><h:outputText value="Списано"/></f:facet>
+				<h:outputText value="#{rep.spisano}" align="center" />
+				<f:facet name="footer">
+					<h:outputText value="#{salesreport.total.totalspisano}" id="tsm"/>
+				</f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.totalmoney}">
+				<f:facet name="header"><h:outputText value="Всего,руб"/></f:facet>
+				<h:outputText value="#{rep.totalmoney}" align="center" />
+				<f:facet name="footer">
+					<h:outputText id="ttms" value="#{salesreport.total.totaltotalmoney}"/>
+				</f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.totallitr}">
+				<f:facet name="header"><h:outputText value="Всего,литр"/></f:facet>
+				<h:outputText value="#{rep.totallitr}" align="center" />
+				<f:facet name="footer"><h:outputText value="#{salesreport.total.totaltotallitr}"/></f:facet>
+			</p:column>
+			<p:column sortBy="#{rep.totalbut}">
+				<f:facet name="header"><h:outputText value="Всего,бут"/></f:facet>
+				<h:outputText value="#{rep.totalbut}" align="center"  />
+				<f:facet name="footer"><h:outputText value="#{salesreport.total.totaltotalbut}"/></f:facet>
+			</p:column>							
+		</p:dataTable>
+		</h:form>
+		<p:spacer height="30px"></p:spacer>
+		<h:form id="buttons">
+		<p:panelGrid  style="font:bold 14px tahoma;" >
+		 
+			<f:facet name="header"> 
+				<p:row>
+				<p:column>
+					<h:outputText value="Экспорт" />
+				</p:column>
+				<p:column>
+					<h:outputText value="Печать" />
+				</p:column>
+				 </p:row>
+			</f:facet>
+					<p:row>
+						<p:column>
+							<p:commandButton id="xlsExport" ajax="false" value="В Excel" >
+								<p:dataExporter type="xls" target=":form2:reporttable" fileName="report" />
+							</p:commandButton>
+						</p:column>
+						<p:column style="text-align:center">
+							<p:commandButton id="prew" icon="ui-icon-print" onclick="window.print()" style="margin:0 auto;">								
+							</p:commandButton>
+						</p:column>
+					</p:row>				
+		</p:panelGrid>
+		</h:form>
+		  
+
+			
+</html>

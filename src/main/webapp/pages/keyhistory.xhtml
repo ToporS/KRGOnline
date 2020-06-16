@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+	
+	<h:head>
+		<title><ui:insert name="title">Система мониторинга автоматов</ui:insert></title>
+	</h:head>
+<h:form>	
+<table width="100%" bordercolor="0093DD" border = "0" cellpadding="0" cellspacing="0" bgcolor="0093DD">
+		<tr  bgcolor="0093DD"  bordercolor="0093DD" border = "0">
+			<td align="center" width="20%"  bordercolor="0093DD" border = "0" rowspan="2"><p:graphicImage style="width:100%;" value="/images/logo.png"/> </td>			
+			<td align="center" width="40%" ><h:outputText value="Здравствуйте #{login.uname}" style="color:white;font: bold 16px tahoma;" /></td>
+			<td align="center" width="40%" ><h:outputText value="Права: #{login.role}" style="color:white;font: bold 16px tahoma;"  /></td>		
+		</tr>
+		<tr bgcolor="0093DD"  bordercolor="0093DD" border = "0" align="right">		
+			<td />	
+			<td align="right" bordercolor="0093DD" width="10%"><h:commandButton rendered="#{login.loggedIn}" value="Logout" action="#{login.logOut()}"></h:commandButton></td>
+		</tr>
+		<tr height="30px" >
+			<td colspan="4" align="center">
+				<p:tabMenu activeIndex="3" style="font: normal 16px serif;">
+					<p:menuitem value="Автоматы" url="/pages/avtomats.jsf"/>
+					<p:menuitem value="Ключи" url="/pages/keys.jsf"/>
+					<p:menuitem value="Инкассаторы" url="/pages/inkasatori.jsf"/>
+					<p:menuitem value="История ключей" url="/pages/keyhistory.jsf"/>
+					<p:menuitem value="История инкассаций" url="/pages/inkashistory.jsf"/>	
+					<p:menuitem value="История бонусов" url="/pages/bonusstory.jsf"/>
+					<p:menuitem value="Отчеты" url="/pages/report.jsf"/>
+					<p:menuitem value="Пользователи" url="/pages/users.jsf" />
+					<p:menuitem value="Панель провайдера" url="/pages/provider.jsf"/>	
+				</p:tabMenu>
+			</td>
+		</tr>		
+		</table>
+		</h:form>
+			
+		<h:form id="form1">
+		<p:panelGrid id="dateselect" cellpadding="4" style="margin:0 auto; width:50%;text-align:center;"  >
+			<p:row>
+				<p:column style="font:bold 16px sans-serif;">
+					<h:outputText value="Период выборки: " /> <br />
+					<h:outputText value="C :    " /><br />
+						<p:calendar id="fromday" value="#{keystory.fromDate}" /> <br />
+					<h:outputText value="По: " /><br />
+						<p:calendar id="today" value="#{keystory.toDate}"/>
+				</p:column>
+				<p:column style="text-align:center;font:bold 16px sans-serif;">
+					<h:outputText value="Фильтр по автомату: " /><br />
+					<p:selectOneMenu id="avtonumselect" value="#{keystory.avtoNum}" converter="intconvert" style="width:100px;" valueChangeListener="#{keystory.autoFil}" >
+						<f:selectItems value="#{keystory.avtomatList}" var="avtonumselect" itemLabel="#{avtonumselect}" itemValue="#{avtonumselect}" > </f:selectItems>
+						<p:ajax event="change" update="automatFilter"/>						
+					</p:selectOneMenu>
+					<p:spacer width="10px"></p:spacer>
+					<h:outputText value="Применить " style="font:12px sans-serif;"/>
+					<p:selectBooleanCheckbox id="automatFilter" value="#{keystory.automatFilterEnabled}">
+					</p:selectBooleanCheckbox>
+					<br />
+					<h:outputText value="Фильтр по ключу: " /><br />
+					<p:inputText value="#{keystory.filterKey}">					
+						<p:ajax event="keyup" update="keyFilter" listener="#{keystory.keyFil()}" />
+					</p:inputText> 
+					<p:spacer width="10px"></p:spacer>
+					<h:outputText value="Применить " style="font:12px sans-serif;" />
+					<p:selectBooleanCheckbox id="keyFilter" value="#{keystory.keyFilterEnabled}">
+					</p:selectBooleanCheckbox>
+				</p:column>
+				
+			</p:row>
+				<p:row rendered="#{login.provider}" >
+				<p:column colspan="2" style="font:bold 16px sans-serif;">
+					<h:outputText value="История ключей пользователя: " />
+					<p:selectOneMenu id="olistsel" converter="strconverter" value="#{keystory.operatorName}" style="width:500;" >
+    					<f:selectItems style="width:500;" value="#{login.operList}" var="olistsel" itemLabel="#{olistsel}" itemValue="#{olistsel}"></f:selectItems>
+    				</p:selectOneMenu>	
+				</p:column>				
+			</p:row>
+			<p:row>
+				<p:column>
+					<p:commandButton id="avtosearch" actionListener="#{keystory.getByDate}" update=":form2:keyhisttable avtonumselect" value="Показать" style="height:25px;text-align:center;font: normal 12px tahoma;"></p:commandButton> 
+				</p:column>
+				<p:column>
+					<p:commandButton id="filterapl" actionListener="#{keystory.filterBy()}" update=":form2:keyhisttable" value="Фильтровать" style="height:25px;text-align:center;font: normal 12px tahoma;"></p:commandButton> 
+				</p:column>
+			</p:row>
+	 </p:panelGrid> 
+	  </h:form>		
+				
+<p:spacer height="20px"/>	
+		
+	  <h:form id="form2">
+<p:dataTable id="keyhisttable" var="keyrec" value="#{keystory.lazyKeyStory}" emptyMessage="Записей не найдено.." widgetVar="keyhistTable" paginator="true" rows="20"  
+                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                 rowsPerPageTemplate="20,50,100" style="font:bold 12px serif;width:50%; margin:0 auto;text-align:center;" lazy="true">
+		<f:facet name="header"> 
+			<h:outputText value="История ключей" style="font:bold 16px sans-serif;" />		 
+		</f:facet>
+			<p:column sortBy="#{keyrec.id.numkey}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Аккаунт" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.id.numkey}" align="center" />
+			</p:column>
+			<p:column sortBy="#{keyrec.id.dat}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Дата" align="center"  />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.id.dat}" align="center"> 
+		  <f:convertDateTime pattern="dd.MM.yyyy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}"/> 
+		 </h:outputText>
+			</p:column>
+			<p:column sortBy="#{keyrec.avtomat}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Автомат" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.avtomat}" align="center" />
+			</p:column>
+			<p:column sortBy="#{keyrec.sumadd}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Пополнено" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.sumadd}" align="center" />
+			</p:column>
+			<p:column sortBy="#{keyrec.sumsub}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Списано" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{keyrec.sumsub}" align="center" />
+			</p:column>
+		
+		</p:dataTable>
+		</h:form>
+</html>

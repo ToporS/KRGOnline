@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    
+    
+    <!-- Допилить панель редактирования!!!! -->
+    
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+	<!--<ui:composition template="/pages/templates/BaseTemplate.xhtml">
+	<ui:define name="content">	 -->
+	<h:head><title><ui:insert name="title">Система мониторинга автоматов</ui:insert></title>
+	</h:head>
+<h:form id="form">
+<p:growl id="growl" showDetail="true"/>
+<table width="100%" bordercolor="0093DD" border = "0" cellpadding="0" cellspacing="0" bgcolor="0093DD">
+		<tr  bgcolor="0093DD"  bordercolor="0093DD" border = "0">
+			<td align="center" width="20%"  bordercolor="0093DD" border = "0" rowspan="2"><p:graphicImage style="width:100%;" value="/images/logo.png"/> </td>			
+			<td align="center" width="40%" ><h:outputText value="Здравствуйте #{login.uname}" style="color:white;font: bold 16px tahoma;" /></td>
+			<td align="center" width="40%" ><h:outputText value="Права: #{login.role}" style="color:white;font: bold 16px tahoma;"  /></td>		
+		</tr>
+		<tr bgcolor="0093DD"  bordercolor="0093DD" border = "0" align="right">		
+			<td />	
+			<td align="right" bordercolor="0093DD" width="10%"><h:commandButton rendered="#{login.loggedIn}" value="Logout" action="#{login.logOut()}"></h:commandButton></td>
+		</tr>
+		<tr height="30px" >
+			<td colspan="4" align="center">
+				<p:tabMenu activeIndex="2" style="font: normal 16px serif;">
+					<p:menuitem value="Автоматы" url="/pages/avtomats.jsf"/>
+					<p:menuitem value="Ключи" url="/pages/keys.jsf"/>
+					<p:menuitem value="Инкассаторы" url="/pages/inkasatori.jsf"/>
+					<p:menuitem value="История ключей" url="/pages/keyhistory.jsf"/>
+					<p:menuitem value="История инкассаций" url="/pages/inkashistory.jsf"/>	
+					<p:menuitem value="История бонусов" url="/pages/bonusstory.jsf"/>
+					<p:menuitem value="Отчеты" url="/pages/report.jsf"/>
+					<p:menuitem value="Пользователи" url="/pages/users.jsf"/>
+					<p:menuitem value="Панель провайдера" url="/pages/provider.jsf"/>	
+				</p:tabMenu>
+			</td>
+		</tr>		
+		</table>
+		<p:spacer height="20px"/>
+<p:dataTable id="inkastable" var="ink" value="#{inkasatori.inkasatori}" emptyMessage="Записей не найдено.."  style="font:bold 12px serif;width:70%; margin:0 auto;" >
+		<f:facet name="header">
+		<h:outputText value="Инкассаторы" style="font:bold 16px sans-serif;" />
+		 
+</f:facet>
+		<p:column>
+		 		<f:facet name="header">
+			 		<h:outputText value="Дата" align="center"  />
+		 		</f:facet>
+		 <h:outputText value="#{ink.id.dat}" align="center">
+		 	<f:convertDateTime pattern="dd.MM.yyyy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}"/>
+		 </h:outputText>
+			</p:column>
+			<p:column>
+		 		<f:facet name="header">
+			 		<h:outputText value="ID Ключа" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{ink.id.datakey}" align="center" />
+			</p:column>			
+			<p:column>
+		 		<f:facet name="header">
+			 		<h:outputText value="Инкассатор" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{ink.id.name}" align="center" />
+			</p:column>
+			<p:column>
+		 		<f:facet name="header">
+			 		<h:outputText value="Примечание" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{ink.id.prim}" align="center" />
+			</p:column>	
+			<p:column>
+		 		<f:facet name="header">
+			 		<h:outputText value="Права" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{ink.id.prava}" align="center" />
+			</p:column>
+			<p:column rendered="#{login.provider}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Оператор" align="center" />
+		 		</f:facet>
+		 <h:outputText value="#{ink.id.operator}" align="center" />
+			</p:column>
+			<p:column style="width:2%;text-align:center;" rendered="#{login.expandShow}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Редактировать" align="center" />
+		 		</f:facet>
+		 		<p:commandButton id="editButton" oncomplete="dlg2.show()" update=":form2:display" icon="ui-icon-pencil" title="Редактировать" >  <!--   -->
+                  <f:setPropertyActionListener value="#{ink}" target="#{inkasatori.selectedInkas}" for="editButton" /> 
+            </p:commandButton> 
+			</p:column>
+			<p:column style="width:2%;text-align:center;" rendered="#{login.expandShow}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Удалить" align="center" />
+		 		</f:facet>
+		 		<p:commandButton id="delButton" oncomplete="confirmation.show()" update=":form2:display" icon="ui-icon-trash" title="Удалить">  <!--   -->
+                  <f:setPropertyActionListener value="#{ink}" target="#{inkasatori.selectedInkas}" for="delButton" /> 
+            </p:commandButton> 
+			</p:column>	
+			<p:column style="width:2%;text-align:center;" rendered="#{login.expandShow}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Мастер" align="center" />
+		 		</f:facet>
+		 		<p:commandButton id="masterButton" update=":form2:display" oncomplete="confirmaster.show()" icon="ui-icon-key" title="Назначить мастером">  <!--   -->
+                  <f:setPropertyActionListener value="#{ink}" target="#{inkasatori.selectedInkas}" for="masterButton" /> 
+            </p:commandButton> 
+			</p:column>				
+		</p:dataTable>
+		</h:form>
+		<h:form id="form2">
+			<p:dialog id="modalDialog" resizable="false"  header="Редактирование инкассатора" widgetVar="dlg2" modal="false">  
+     			<p:panelGrid id="display" cellpadding="4" style="margin:0 auto; width:90%" styleClass=" ui-widget-content grid">
+     				<f:facet name="header">
+     					<p:row>
+     						<p:column>
+     							<h:outputText value="Bitmap" />
+     						</p:column>
+     						<p:column>
+     							<h:outputText value="Ф.И.О. инкассатора" />
+     						</p:column>
+     						<p:column>
+     							<h:outputText value="Права" />
+     						</p:column>
+     						<p:column>
+     							<h:outputText value="Примечание" />
+     						</p:column>
+     					</p:row>
+     				</f:facet>
+     				<p:row style="height:35px;">
+     						<p:column>
+     							<h:outputText value="#{inkasatori.selectedInkas.id.datakey}" />
+     						</p:column>
+     						<p:column>
+     							<h:inputText value="#{inkasatori.selectedInkas.id.name}" />
+     						</p:column>
+     						<p:column>
+     							<p:selectOneMenu id="conloww" converter="strconverter" value="#{inkasatori.selectedInkas.id.prava}"  >
+    								<f:selectItems value="#{inkasatori.prava}" var="conloww" itemLabel="#{conloww}" itemValue="#{conloww}"></f:selectItems>
+    							</p:selectOneMenu>
+     						</p:column>
+     						<p:column>
+     							<h:inputText value="#{inkasatori.selectedInkas.id.prim}" />
+     						</p:column>
+     					</p:row>
+     					<f:facet name="footer">
+     					<p:row >
+     						<p:column colspan="4">
+     							<p:commandButton title="Сохранить" value="OK" update=":form:inkastable" icon="ui-icon-check" style="height:30px" actionListener="#{inkasatori.saveInkas()}" oncomplete="dlg2.hide()"></p:commandButton>
+     						</p:column>
+     					</p:row>
+     				</f:facet>
+     			</p:panelGrid>
+     		</p:dialog>     
+		</h:form>
+		<h:form id="delconfirm">
+		<p:dialog id="confirmDialog" header="Удаление ключа инкассатора" widgetVar="confirmation" modal="false" resizable="false"> 
+		<p:panelGrid id="deldisplay" cellpadding="4" style="margin:0 auto; width:90%" styleClass=" ui-widget-content grid">
+        	<p:row>
+        		<p:column>
+        			<h:outputText value="Удалить ключ инкассатора ?" style="font:bold 16px sans-serif;" />       <br />   
+        			<p:commandButton id="confirm" value="Да" update=":form:inkastable" oncomplete="confirmation.hide()" actionListener="#{inkasatori.delinkas()}" />  
+        			<p:commandButton id="decline" value="Нет" onclick="confirmation.hide()" type="button" update=":form:inkastable" />
+        		</p:column>
+        	</p:row>
+        </p:panelGrid>   
+                  
+    </p:dialog>  
+	</h:form>
+	<h:form id="masterconfirm">
+		<p:dialog id="confirmasterDialog" header="Задание мастер ключа" widgetVar="confirmaster" modal="false" resizable="false" dynamic="true"> 
+		<p:panelGrid id="masterdisplay" cellpadding="4" style="margin:0 auto; width:90%" styleClass=" ui-widget-content grid">
+        	<p:row>
+        		<p:column>
+        			<h:outputText value="Задать ключ #{inkasatori.selectedInkas.id.datakey} мастер ключем оператора #{inkasatori.selectedInkas.id.operator} ?" style="font:bold 16px sans-serif;" />       <br />   
+        			<p:commandButton id="conf" value="Да" update=":form:inkastable :form:growl" oncomplete="confirmaster.hide()" actionListener="#{inkasatori.saveAsMaster()}" />  
+        			<p:commandButton id="decl" value="Нет" onclick="confirmaster.hide()" type="button" update=":form:inkastable" />
+        		</p:column>
+        	</p:row>
+        </p:panelGrid>   
+                  
+    </p:dialog>  
+	</h:form>	
+	<!--</ui:define>
+</ui:composition> -->
+</html>

@@ -1,0 +1,595 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:head>
+	<title><ui:insert name="title">Система мониторинга автоматов</ui:insert></title>
+	<!-- <script>
+function fresh() {
+location.reload();}
+}
+setInterval("fresh()",300000)
+</script>
+ -->
+</h:head>
+	
+	<h:form id="form1">
+	<table width="100%" bordercolor="0093DD" border = "0" cellpadding="0" cellspacing="0" bgcolor="0093DD">
+		<tr  bgcolor="0093DD"  bordercolor="0093DD" border = "0">
+			<td align="center" width="20%"  bordercolor="0093DD" border = "0" rowspan="2"><p:graphicImage style="width:100%;" value="/images/logo.png"/> </td>			
+			<td align="center" width="40%" ><h:outputText value="Здравствуйте #{login.uname}" style="color:white;font: bold 16px tahoma;" /></td>
+			<td align="center" width="40%" ><h:outputText value="Права: #{login.role}" style="color:white;font: bold 16px tahoma;"  /></td>		
+		</tr>
+		<tr bgcolor="0093DD"  bordercolor="0093DD" border = "0" align="right">		
+			<td />	
+			<td align="right" bordercolor="0093DD" width="10%"><h:commandButton rendered="#{login.loggedIn}" value="Logout" action="#{login.logOut()}"></h:commandButton></td>
+		</tr>
+		<tr height="30px" >
+			<td colspan="4" align="center">
+		 		<p:tabMenu activeIndex="0" style="font: normal 16px serif;" >
+					
+					<p:menuitem value="Автоматы" url="/pages/avtomats.jsf"/>
+					<p:menuitem value="Ключи" url="/pages/keys.jsf"/>
+					<p:menuitem value="Инкассаторы" url="/pages/inkasatori.jsf"/>
+					<p:menuitem value="История ключей" url="/pages/keyhistory.jsf"/>
+					<p:menuitem value="История инкассаций" url="/pages/inkashistory.jsf"/>	
+					<p:menuitem value="История бонусов" url="/pages/bonusstory.jsf"/>
+					<p:menuitem value="Отчеты" url="/pages/report.jsf" onstart="statusDialog.show()" oncomplete="statusDialog.hide()"/>						
+					<p:menuitem value="Пользователи" url="/pages/users.jsf"/>
+					<p:menuitem value="Панель провайдера" url="/pages/provider.jsf"/>	
+				</p:tabMenu>     
+			</td>
+		</tr>		
+		</table>
+		</h:form>
+		<h:form id="form3" style="text-align:center;margin:0 auto;align:center;">
+		<p:panelGrid id="filterselect" cellpadding="4" style="margin:0 auto; width:40%" styleClass=" ui-widget-content grid">
+			
+			<p:row>
+				<p:column>
+					<h:outputText value="Показать автомат по ID: " />
+					<h:inputText value="#{avtomatmb.aNum}" />	
+				</p:column>
+				<p:column>
+					<p:commandButton id="avtoidsearch" actionListener="#{avtomatmb.showAutoById()}" update=":form:avtomattable" value="Показать" style="height:25px;text-align:center;font: normal 12px tahoma;"></p:commandButton> 
+				</p:column>
+			</p:row>
+	 </p:panelGrid> 
+	  <p:spacer height="20px"/>				
+		</h:form>
+		
+	  <p:ajaxStatus  id="ajaxStatusPanel"  >  
+    <f:facet name="start">  
+        <p:graphicImage style="width:64px;height:64px;margin:0 auto;" value="/images/ajax-loader.gif"/> 
+    </f:facet>  
+  
+    <f:facet name="complete">  
+        <h:outputText value="" />  
+    </f:facet>  
+</p:ajaxStatus> 
+		<h:form id="form">
+		<p:messages/>
+		<p:dataTable id="avtomattable" var="avto" value="#{avtomatmb.lazyAvtomats}" paginator="true" rows="30"  
+                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                 rowsPerPageTemplate="20,30,50" selection="single" sortMode="multiple" style="font:bold 12px serif;" lazy="true">
+        <f:facet name="header">
+		 Аппараты: 
+		</f:facet>	
+			<!-- <p:column style="width:2%;" rendered="#{avtomatmb.expandShow}">  
+            <p:rowToggler />-->
+            <p:column style="width:2%;" rendered="#{login.expandShow}">
+            <p:commandButton id="selectButton" oncomplete="dlg2.show()" update=":setform:display" icon="ui-icon-wrench" title="View" >  <!--   -->
+                   
+                  <f:setPropertyActionListener value="#{avto}" target="#{avtomatmb.selectedAvtomat}" for="selectButton" />
+                   
+            </p:commandButton>  
+        </p:column> 	
+       	
+			<p:column sortBy="#{avto.avtomat.num}" id="idcol" style="width:3%;">			
+		 		<f:facet name="header">
+			 		<h:outputText value="ID" align="center" />
+		 		</f:facet>
+		 		<h:outputText value="#{avto.avtomat.num}" align="center"/>
+			</p:column>
+			
+			<p:column sortBy="#{avto.avtomat.operator}" id="opercol" style="width:3%;" rendered="#{login.provider}">
+			
+		 		<f:facet name="header">
+			 		<h:outputText value="Оператор" align="center" />
+		 		</f:facet>
+		 		<h:outputText value="#{avto.avtomat.operator}" align="center"/>
+			</p:column>
+			
+			<p:column sortBy="#{avto.avtomat.adr}" style="width:20%;">
+		 		<f:facet name="header">
+			 		<h:outputText value="Адрес" align="center"  />
+		 		</f:facet>
+		 		<h:outputText value="#{avto.avtomat.adr}" align="center"  />
+			</p:column>
+			<p:column sortBy="#{avto.senSet.kopilka}" style="width:4px;">
+		 		<f:facet name="header">
+			 		<h:outputText value="Копилка" align="center" />
+		 		</f:facet>
+		 		<h:outputText value="#{avto.senSet.kopilka}" align="center"  />&nbsp;<h:outputText value="руб."/>
+			</p:column>
+			<p:column>
+		 		<f:facet name="header">
+			 		<h:outputText value="ПО" align="center"  />
+		 		</f:facet>
+		 		<h:outputText value="#{avto.senSet.po}" align="center"  />
+			</p:column>
+			<p:column sortBy="#{avto.avtomat.trevdat}" style="background-color:#{avto.senSet.trevAct?'red':'white'};">
+		 		<f:facet name="header">
+			 		<h:outputText value="Удар" align="center" />			 		
+		 		</f:facet>
+				<h:outputText value="#{avto.avtomat.trevdat}" align="center">
+					<f:convertDateTime pattern="dd.MM.yy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}"/> 
+				</h:outputText><br />
+				<p:selectBooleanCheckbox value="#{avto.senSet.trevAct}" rendered="#{avto.senSet.trevAct}" style="margin-left: 15%;">
+			 			<p:ajax update=":form:avtomattable" listener="#{avtomatmb.uncheck(avto.avtomat.num, 32)}"/>
+			 		</p:selectBooleanCheckbox>
+			 	<h:outputText value="Снять" rendered="#{avto.senSet.trevAct}" style="margin-left: 2px;font:normal 10px serif;" />
+			</p:column>	
+			<p:column sortBy="#{avto.avtomat.rezdat}" style="background-color:#{avto.senSet.lowWaterAct?'red':'white'}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Мало воды" align="center" />
+		 		</f:facet>
+				<h:outputText value="#{avto.avtomat.vodadat}" align="center">
+					<f:convertDateTime pattern="dd.MM.yy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}" /> 
+				</h:outputText><br />
+				<p:selectBooleanCheckbox value="#{avto.senSet.lowWaterAct}" rendered="#{avto.senSet.lowWaterAct}" style="margin-left: 15%;">
+			 			<p:ajax update=":form:avtomattable" listener="#{avtomatmb.uncheck(avto.avtomat.num, 64)}"/>
+			 		</p:selectBooleanCheckbox>
+			 	<h:outputText value="Снять" rendered="#{avto.senSet.lowWaterAct}" style="margin-left: 2px;font:normal 10px serif;" />
+			</p:column>				
+			<p:column sortBy="#{avto.avtomat.novodadat}" style="background-color:#{avto.senSet.noWaterAct?'red':'white'}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Нет воды" align="center" />
+		 		</f:facet>
+				 <h:outputText value="#{avto.avtomat.novodadat}" align="center">
+				 	<f:convertDateTime pattern="dd.MM.yy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}" />
+				 </h:outputText><br />
+				 <p:selectBooleanCheckbox value="#{avto.senSet.noWaterAct}" rendered="#{avto.senSet.noWaterAct}" style="margin-left: 15%;">
+			 			<p:ajax update=":form:avtomattable" listener="#{avtomatmb.uncheck(avto.avtomat.num, 128)}"/>
+			 		</p:selectBooleanCheckbox>
+			 		<h:outputText value="Снять" rendered="#{avto.senSet.noWaterAct}" style="margin-left: 2px;font: normal 10px serif;" />
+			</p:column>			
+			<p:column sortBy="#{avto.avtomat.vodadat}" style="background-color:#{avto.senSet.tankFullAct?'green':'white'}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Бак полон" align="center" />
+		 		</f:facet>
+		 			<h:outputText value="#{avto.avtomat.rezdat}" align="center">
+		 				<f:convertDateTime pattern="dd.MM.yy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}" />
+		 			</h:outputText><br />
+		 			<p:selectBooleanCheckbox value="#{avto.senSet.tankFullAct}" rendered="#{avto.senSet.tankFullAct}" style="margin-left: 15%;">
+			 			<p:ajax update=":form:avtomattable" listener="#{avtomatmb.uncheck(avto.avtomat.num, 16)}"/>
+			 		</p:selectBooleanCheckbox>
+			 		<h:outputText value="Снять" rendered="#{avto.senSet.tankFullAct}" style="margin-left: 2px;font: normal 10px serif;" />
+			</p:column>
+			<p:column sortBy="#{avto.avtomat.zasordat}" style="background-color:#{avto.senSet.zasorAct?'red':'white'}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Засор" align="center" />
+		 		</f:facet>
+		 		<h:outputText value="#{avto.avtomat.zasordat}" align="center">
+		 			<f:convertDateTime pattern="dd.MM.yy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}" />
+		 		</h:outputText><br />
+				<p:selectBooleanCheckbox value="#{avto.senSet.zasorAct}" rendered="#{avto.senSet.zasorAct}" style="margin-left: 15%;">
+			 			<p:ajax update=":form:avtomattable" listener="#{avtomatmb.uncheck(avto.avtomat.num, 1024)}"/>
+			 	</p:selectBooleanCheckbox>
+			 	<h:outputText value="Снять" rendered="#{avto.senSet.zasorAct}" style="margin-left: 2px;font: normal 10px serif;" />
+			</p:column>	
+			<p:column sortBy="#{avto.avtomat.temdat}" style="background-color:#{avto.senSet.tempAct?'red':'white'}">
+		 		<f:facet name="header">
+			 		<h:outputText value="Темп." align="center" />
+		 		</f:facet>
+		 			<h:outputText value="#{avto.avtomat.temdat}" align="center">
+		 				<f:convertDateTime pattern="dd.MM.yy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}" />
+		 			</h:outputText><br />
+		 			<p:selectBooleanCheckbox value="#{avto.senSet.tempAct}" rendered="#{avto.senSet.tempAct}" style="margin-left: 15%;">
+			 			<p:ajax update=":form:avtomattable" listener="#{avtomatmb.uncheck(avto.avtomat.num, 8)}"/>
+			 		</p:selectBooleanCheckbox>
+			 		<h:outputText value="Снять" rendered="#{avto.senSet.tempAct}" style="margin-left: 2px;font: normal 10px serif;" />
+			</p:column>
+			<p:column sortBy="#{avto.avtomat.pitdat}" style="background-color:#{avto.senSet.noPowerAct?'red':'white'};">
+		 		<f:facet name="header">
+			 		<h:outputText value="Нет 220" align="center" />			 		
+		 		</f:facet>
+				<h:outputText value="#{avto.avtomat.pitdat}" align="center">
+					<f:convertDateTime pattern="dd.MM.yy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}" /> 
+				</h:outputText><br />
+				<p:selectBooleanCheckbox value="#{avto.senSet.noPowerAct}" rendered="#{avto.senSet.noPowerAct}" style="margin-left: 15%;">
+			 			<p:ajax update=":form:avtomattable" listener="#{avtomatmb.uncheck(avto.avtomat.num, 512)}"/>
+			 		</p:selectBooleanCheckbox>
+			 	<h:outputText value="Снять" rendered="#{avto.senSet.noPowerAct}" style="margin-left: 2px;font: normal 10px serif;" />
+			</p:column>	
+			<p:column sortBy="#{avto.avtomat.dat}" style="background-color:#{avto.timePass?'yellow':'white'};">
+		 		<f:facet name="header">
+			 		<h:outputText value="ПС" align="center" />
+		 		</f:facet>
+		 		<h:outputText value="#{avto.lastSession}" align="center"/><br />
+		 		<h:outputText value="#{avto.avtomat.dat}" align="center" style="font:normal 9px sans-serif;color:blue">
+		 			<f:convertDateTime pattern="dd.MM.yy HH:mm" locale="#{login.locale}" timeZone="#{login.timeZone}" />
+		 		</h:outputText>
+		 		
+			</p:column>
+    </p:dataTable>
+    </h:form>
+    <h:form id="confirmform">
+     <p:confirmDialog id="confirmDialog" message="Сохранить настройки аппарата #{avtomatmb.selectedAvtomat.avtomat.num} ?"  
+                header="Сохранение настроек" severity="alert" widgetVar="confirmation">  
+                  
+        <p:commandButton id="confirm" value="Да" update=":form:avtomattable" oncomplete="confirmation.hide()"  
+                    actionListener="#{avtomatmb.saveParams()}" />  
+        <p:commandButton id="decline" value="Нет" onclick="confirmation.hide()" type="button" />   
+                  
+    </p:confirmDialog>  
+    </h:form>
+    <h:form id="setform">
+    <p:dialog dynamic="true" id="modalDialog" resizable="false" header="Изменение настроек автомата" widgetVar="dlg2" modal="false" >  
+    
+     <p:panelGrid id="display"  cellpadding="4" style="width:650px" >  
+  			 <f:facet name="header">  
+        <p:row>  
+            <p:column colspan="8">Настройки автомата #{avtomatmb.selectedAvtomat.avtomat.num}</p:column>  
+        </p:row> 
+    </f:facet>  
+    	<p:row style="height:25px;">
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: bold 10px tahoma;" value="Настройка"  />
+    		</p:column>  
+    		<p:column style="width:5%;text-align:center;">
+    			<h:outputText style="font: bold 10px tahoma;" value="Удар"  />
+    		</p:column>  
+    		<p:column style="width:5%;text-align:center;">
+    			<h:outputText style="font:bold 10px tahoma;" value="Мало воды"  />
+    		</p:column>
+    		<p:column style="width:5%;text-align:center;">
+    			<h:outputText style="font:bold 10px tahoma;" value="Нет воды"  />
+    		</p:column>
+    		<p:column style="width:5%;text-align:center;">
+    			<h:outputText style="font:bold 10px tahoma;" value="Бак полон"  />
+    		</p:column>
+    		<p:column style="width:5%;text-align:center;">
+    			<h:outputText style="font:bold 10px tahoma;" value="Нет 220"  />
+    		</p:column>
+    		<p:column style="width:5%;text-align:center;">
+    			<h:outputText style="font:bold 10px tahoma;" value="Движение"  />
+    		</p:column>
+    		<p:column style="width:5%;text-align:center;">
+    			<h:outputText style="font:bold 10px tahoma;" value="Температура"  />
+    		</p:column> 
+    	</p:row>
+    	<p:row>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Дребезг, мс"  />
+    		</p:column>  
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="drebtrev" value="#{avtomatmb.selectedAvtomat.senSet.trevDreb}" converter="sobconverter"  style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems id="dtsi" value="#{avtomatmb.drebinst}" var="drebtrev"  itemLabel="#{drebtrev}" itemValue="#{drebtrev}" >    					
+    				</f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column>  
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="drebloww" converter="sobconverter" value="#{avtomatmb.selectedAvtomat.senSet.lowWaterDreb}" style="width:70px;height:20px;text-align:left;margin:0;" >
+    				<f:selectItems value="#{avtomatmb.drebinst}" var="drebloww" itemLabel="#{drebloww}" itemValue="#{drebloww}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="drebnow" converter="sobconverter" value="#{avtomatmb.selectedAvtomat.senSet.noWaterDreb}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.drebinst}" var="drebnow" itemLabel="#{drebnow}" itemValue="#{drebnow}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="drebtf" converter="sobconverter" value="#{avtomatmb.selectedAvtomat.senSet.tankFullDreb}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.drebinst}" var="drebtf" itemLabel="#{drebtf}" itemValue="#{drebtf}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="drebnop" converter="sobconverter" value="#{avtomatmb.selectedAvtomat.senSet.noPowerDreb}" style="width:70px;width:height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.drebinst}" var="drebnop" itemLabel="#{drebnop}" itemValue="#{drebnop}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="drebmov" converter="sobconverter"  value="#{avtomatmb.selectedAvtomat.senSet.movingDreb}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.drebinst}" var="drebmov" itemLabel="#{drebmov}" itemValue="#{drebmov}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="drebtemp" converter="sobconverter"  value="#{avtomatmb.selectedAvtomat.senSet.tempDreb}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.drebinst}" var="drebtemp" itemLabel="#{drebtemp}" itemValue="#{drebtemp}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column>   
+    	</p:row>
+    	<p:row>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Восстановление, 0,1с"  />
+    		</p:column>  
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="resttrev" converter="sobconverter"  value="#{avtomatmb.selectedAvtomat.senSet.trevRest}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.restinst}" var="resttrev" itemLabel="#{resttrev}" itemValue="#{resttrev}" ></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column>  
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="restloww" converter="sobconverter"  value="#{avtomatmb.selectedAvtomat.senSet.lowWaterRest}" style="width:70px;height:20px;text-align:left;margin:0;" >
+    				<f:selectItems value="#{avtomatmb.restinst}" var="restloww" itemLabel="#{restloww}" itemValue="#{restloww}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="restnow" converter="sobconverter"  value="#{avtomatmb.selectedAvtomat.senSet.noWaterRest}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.restinst}" var="restnow" itemLabel="#{restnow}" itemValue="#{restnow}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="resttf" converter="sobconverter"  value="#{avtomatmb.selectedAvtomat.senSet.tankFullRest}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.restinst}" var="resttf" itemLabel="#{resttf}" itemValue="#{resttf}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="restnop" converter="sobconverter" value="#{avtomatmb.selectedAvtomat.senSet.noPowerRest}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.restinst}" var="restnop" itemLabel="#{restnop}" itemValue="#{restnop}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="restmov" converter="sobconverter" value="#{avtomatmb.selectedAvtomat.senSet.movingRest}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.restinst}" var="restmov" itemLabel="#{restmov}" itemValue="#{restmov}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="resttemp" converter="sobconverter" value="#{avtomatmb.selectedAvtomat.senSet.tempRest}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.restinst}" var="resttemp" itemLabel="#{resttemp}" itemValue="#{resttemp}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column>   
+    	</p:row>
+    	<p:row>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Срабатывание на:"  />
+    		</p:column>  
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="contrev" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.trevCon}" style="width:70px; height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.coninst}" var="contrev" itemLabel="#{contrev}" itemValue="#{contrev}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column>  
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="conloww" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.lowWaterCon}" style="width:70px;height:20px;text-align:left;margin:0;" >
+    				<f:selectItems value="#{avtomatmb.coninst}" var="conloww" itemLabel="#{conloww}" itemValue="#{conloww}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="connow" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.noWaterCon}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.coninst}" var="connow" itemLabel="#{connow}" itemValue="#{connow}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="contf" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.tankFullCon}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.coninst}" var="contf" itemLabel="#{contf}" itemValue="#{contf}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="connop" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.noPowerCon}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.coninst}" var="connop" itemLabel="#{connop}" itemValue="#{connop}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="conmov" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.movingCon}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.coninst}" var="conmov" itemLabel="#{conmov}" itemValue="#{conmov}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" > <h:outputText value="Фиксировано" style="text-align:center;" />
+    		</p:column>   
+    	</p:row>
+    	<p:row>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Оповещение:"  />
+    		</p:column>  
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="urgtrev" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.trevUrg}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.urginst}" var="urgtrev" itemLabel="#{urgtrev}" itemValue="#{urgtrev}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column>  
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="urgloww" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.lowWaterUrg}" style="width:70px;height:20px;text-align:left;margin:0;" >
+    				<f:selectItems value="#{avtomatmb.urginst}" var="urgloww" itemLabel="#{urgloww}" itemValue="#{urgloww}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="urgnow" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.noWaterUrg}" style="width:70px;height:20px;text-align:left;" >    				
+    				<f:selectItems value="#{avtomatmb.urginst}" var="urgnow" itemLabel="#{urgnow}" itemValue="#{urgnow}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="urgtf" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.tankFullUrg}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.urginst}" var="urgtf" itemLabel="#{urgtf}" itemValue="#{urgtf}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			<p:selectOneMenu id="urgnop" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.noPowerUrg}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.urginst}" var="urgnop" itemLabel="#{urgnop}" itemValue="#{urgnop}"></f:selectItems>
+    			</p:selectOneMenu>
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" >
+    			 <h:outputText value="Фиксировано" style="text-align:center;" />
+    		</p:column> 
+    		<p:column style="font: bold 12px verdana;text-align:center;" > 
+    			 <p:selectOneMenu id="urgtemp" converter="strconverter" value="#{avtomatmb.selectedAvtomat.senSet.tempUrg}" style="width:70px;height:20px;text-align:left;" >
+    				<f:selectItems value="#{avtomatmb.urginst}" var="urgtemp" itemLabel="#{urgtemp}" itemValue="#{urgtemp}"></f:selectItems>
+    			</p:selectOneMenu> 
+    		</p:column>   
+    	</p:row>    	
+    	<p:row>
+    		 <p:column colspan="8" style="height:10px;background-color:gray;"/>
+    	</p:row>    	
+    	<p:row>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Обновить ПО"/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<p:selectBooleanCheckbox value="#{avtomatmb.selectedAvtomat.senSet.poUpdate}"/>
+    		</p:column>
+    		<p:column rowspan="3" style="text-align:center;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Дополнительная информация" />
+    		</p:column>
+    		<p:column rowspan="3" colspan="2" style="text-align:center;">
+    		<h:inputTextarea value="#{avtomatmb.selectedAvtomat.avtomat.prim}" style="width:140px;height:65px;text-align:center;overflow:auto;font: normal 12px tahoma;" />
+    		</p:column>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Apn:"/>
+    		</p:column>
+    		<p:column colspan="2" style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.senSet.apn}" style="width:140px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column> 
+    	</p:row>
+    	<p:row>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Импульс / литр"/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.senSet.impLitr}" style="width:70px;height:20px;text-align:center;font: normal 12px tahoma;"/>
+    		</p:column>  
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Телефон:"/>
+    		</p:column>
+    		<p:column colspan="2" style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.avtomat.tel}" style="width:140px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column>   		
+    	</p:row>
+    	<p:row>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Макс. имп."/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.senSet.maxImp}" style="width:70px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Адрес:"/>
+    		</p:column>
+    		<p:column colspan="2" style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.avtomat.adr}" style="width:140px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column>    		
+    	</p:row>
+    	<p:row >
+    		 <p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Цена литра безнал"/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.avtomat.cena}" style="width:70px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column> 
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Цена литра нал"/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.senSet.cenaLitrNal}" style="width:70px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Цена бутылки безнал"/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.avtomat.cenabut}" style="width:70px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column> 
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Цена бутылки нал"/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.senSet.cenaButlNal}" style="width:70px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column>
+    	</p:row>
+    	<p:row >
+    		 <p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Коэфицент монет"/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.senSet.koefMon}" style="width:70px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column> 
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Коэфицент купюр"/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.senSet.koefKup}" style="width:70px;height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column>
+    		<p:column style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: normal 10px tahoma;" value="Таймаут аванса, 0.1мс"/>
+    		</p:column> 
+    		<p:column style="text-align:center;">
+    			<h:inputText value="#{avtomatmb.selectedAvtomat.senSet.timeOut}" style="width:70px; height:20px;text-align:center;margin:0 auto;font: normal 12px tahoma;" />
+    		</p:column> 
+    		<p:column style="width:5%;height:25px;text-align:right;">
+    			<h:outputText style="font: normal 10px tahoma;width:70px;" value="Сохранить и отправить параметры       --->"/>
+    		</p:column>
+    		<p:column style="height:25px;text-align:center;">
+    			<p:commandButton title="Сохранить и отправить параметры" value="Для одного" icon="ui-icon-check" style="font: normal 10px tahoma;height:30px" actionListener="#{avtomatmb.saveParams()}" oncomplete="dlg2.hide()" update=":form:avtomattable"></p:commandButton>
+    			<p:commandButton title="Сохранить и отправить параметры" value="Для всех" icon="ui-icon-check" style="font: normal 10px tahoma;height:30px" actionListener="#{avtomatmb.saveParamsForAll()}" oncomplete="dlg2.hide()" update=":form:avtomattable"></p:commandButton>
+    		</p:column>    		
+    	</p:row>
+    	<!-- </p:panelGrid>
+    	<p:panelGrid id="display2"  cellpadding="4" style="width:100%" rendered="#{login.fullVersion}" > -->
+    		<p:row>
+    		<p:column colspan="8" style="width:5%;text-align:center;height:25px;">
+    			<h:outputText style="font: bold 12px verdana;" value="SMS оповещения:"  />
+    		</p:column>
+    		</p:row> 
+    		<p:row>
+    		<p:column style="font: bold 10px tahoma;text-align:center;" >
+    			<h:outputText value="Удар: " /><br />
+    			<p:selectBooleanCheckbox value="#{avtomatmb.selectedAvtomat.senSet.smsTrev}"/>
+    		</p:column>  
+    		<p:column style="font: bold 10px tahoma;text-align:center;" >
+    			<h:outputText value="Мало Воды: " /><br />
+    			<p:selectBooleanCheckbox value="#{avtomatmb.selectedAvtomat.senSet.smsLowWater}"/>
+    		</p:column> 
+    		<p:column style="font: bold 10px tahoma;text-align:center;" >
+    			<h:outputText value="Нет воды: " /><br />
+    			<p:selectBooleanCheckbox value="#{avtomatmb.selectedAvtomat.senSet.smsNoWater}"/>
+    		</p:column> 
+    		<p:column style="font:bold 10px tahoma;text-align:center;" >
+    			<h:outputText value="Бак полон: " /><br />
+    			<p:selectBooleanCheckbox value="#{avtomatmb.selectedAvtomat.senSet.smsTankFull}"/>
+    		</p:column> 
+    		<p:column style="font:bold 10px tahoma;text-align:center;" >
+    			<h:outputText value="Нет 220: " /><br />
+    			<p:selectBooleanCheckbox value="#{avtomatmb.selectedAvtomat.senSet.smsnoPow}"/>
+    		</p:column> 
+    		<p:column style="font:bold 10px tahoma;text-align:center;" >
+    			<h:outputText value="Температура: " /><br />
+    			<p:selectBooleanCheckbox value="#{avtomatmb.selectedAvtomat.senSet.smsTemp}"/> 
+    		</p:column>  
+    		<p:column style="font: bold 10px tahoma;text-align:center;" >
+    			<h:outputText value="Засор: " /><br />
+    			<p:selectBooleanCheckbox value="#{avtomatmb.selectedAvtomat.senSet.smsZasor}"/>    			 
+    		</p:column>
+    		<p:column style="font: bold 10px tahoma;text-align:center;" >
+    			<h:outputText value="Нет связи: " /><br />
+    			<p:selectBooleanCheckbox value="#{avtomatmb.selectedAvtomat.senSet.smsNoConn}"/> 
+    		</p:column>
+    	</p:row>
+    	<p:row >
+    		 <p:column colspan="10" style="height:25px;text-align:center;background-color:black;color:red" rendered="#{avtomatmb.selectedAvtomat.senSet.paramSend}">
+    		 <h:outputText value="Новые параметры еще не отправлены!" />
+    		 </p:column>
+    	</p:row>
+    	</p:panelGrid>    	    	
+             <br /><br />  
+</p:dialog >     
+	</h:form>
+	<h:form id="aStatus">
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" appendToBody="true" minimizable="false"  closable="false" header="Processing..." resizable="false" maximizable="false">  
+     <p:graphicImage style="width:64px;height:64px;margin:0 auto;" value="/images/ajax-loader.gif"/> 
+</p:dialog>
+</h:form>
+<h:form id="resetconfirm">
+		<p:confirmDialog id="resetConfirmDialog" message="Перерегистрировать аппарат № #{avtomatmb.selectedAvtomat.avtomat.num} ?"  widgetVar="rstAvto"
+                header="Перерегистрировать аппарат #{avtomatmb.selectedAvtomat.avtomat.num}?" severity="alert" modal="false" >  
+                  
+        <p:commandButton id="confirm" value="Да" update=":form:avtomattable" oncomplete="rstAvto.hide()"  
+                    actionListener="#{avtomatmb.resetAvtomat()}" />  
+        <p:commandButton id="decline" value="Нет" onclick="rstAvto.hide()" type="button" />   
+                  
+    </p:confirmDialog>  
+</h:form>
+<!-- 	</ui:define>
+</ui:composition> -->
+	
+</html>

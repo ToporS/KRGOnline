@@ -1,0 +1,4 @@
+@media print{
+#form1,#tohide,#buttons {
+    display: none;
+}}
